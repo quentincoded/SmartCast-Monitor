@@ -1,0 +1,10 @@
+# PlatformIO
+firmware/.pio/
+.pio/
+# editors / OS
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+# local exports
+*.zip
+node_modules/

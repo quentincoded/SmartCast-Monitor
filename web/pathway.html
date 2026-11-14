@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="icon" href="icon-192.png"></head><body>
+<title>SmartCast Care Pathway</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one wide swimlane figure (scrolls sideways on phones), then a short step table and alert rules. Same teal identity as the SmartCast Monitor app. */
+:root{
+  --bg:#edf1f2; --surface:#ffffff; --lane:#f6f9f9; --lane-alt:#e9f0f1;
+  --ink:#13212a; --ink-2:#475864; --ink-3:#74848f; --line:#cdd8dc;
+  --accent:#0d6b74; --accent-soft:#d9eeee; --warn:#a86d00; --warn-soft:#fbefd6; --crit:#c2352b; --crit-soft:#fae1dd;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1418; --surface:#162027; --lane:#141d23; --lane-alt:#18232a;
+  --ink:#e6edf0; --ink-2:#a6b5be; --ink-3:#7a8a94; --line:#33434d;
+  --accent:#55b9c2; --accent-soft:#143a3e; --warn:#e6ad45; --warn-soft:#3a2d12; --crit:#f06f63; --crit-soft:#41201d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1418; --surface:#162027; --lane:#141d23; --lane-alt:#18232a;
+  --ink:#e6edf0; --ink-2:#a6b5be; --ink-3:#7a8a94; --line:#33434d;
+  --accent:#55b9c2; --accent-soft:#143a3e; --warn:#e6ad45; --warn-soft:#3a2d12; --crit:#f06f63; --crit-soft:#41201d; color-scheme:dark}
+*{box-sizing:border-box}
+html{color-scheme:light}body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:24px}
+header{display:flex;flex-direction:column;gap:6px;max-width:72ch}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+h1{margin:0;font-size:clamp(24px,3.4vw,34px);letter-spacing:-.015em;text-wrap:balance}
+h2{margin:0;font-size:18px;text-wrap:balance}
+p{margin:0}
+.lede{color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:22px;height:14px;border-radius:4px;background:var(--surface);border:1.5px solid var(--accent)}
+.sw.p{border:1.5px dashed var(--ink-2)}
+.sw.a{background:var(--warn-soft);border-color:var(--warn)}
+.sw.e{background:var(--crit-soft);border-color:var(--crit)}
+.sw.d{transform:rotate(45deg) scale(.7);border-color:var(--ink-2)}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+figure svg{display:block;width:100%;min-width:920px;height:auto}
+figcaption{padding:10px 6px 2px;font-size:13.5px;color:var(--ink-2);max-width:90ch}
+.hint{display:none;font-size:12.5px;color:var(--ink-3);padding:0 6px 6px}
+@media (max-width:960px){.hint{display:block}}
+/* svg classes */
+.lane{fill:var(--lane)} .lane-alt{fill:var(--lane-alt)}
+.t-lane{font:700 15px var(--f-body);fill:var(--ink)}
+.t-lanek{font:700 10.5px var(--f-body);letter-spacing:.12em;fill:var(--ink-3)}
+.n-auto{fill:var(--surface);stroke:var(--accent);stroke-width:1.6}
+.n-person{fill:var(--surface);stroke:var(--ink-2);stroke-width:1.4;stroke-dasharray:5 4}
+.n-start{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4;stroke-dasharray:5 4}
+.n-end{fill:var(--surface);stroke:var(--ink-3);stroke-width:1.4}
+.n-alert{fill:var(--warn-soft);stroke:var(--warn);stroke-width:1.6}
+.n-emerg{fill:var(--crit-soft);stroke:var(--crit);stroke-width:1.6;stroke-dasharray:5 4}
+.n-dec{fill:var(--surface);stroke:var(--accent);stroke-width:1.6}
+.t-title{font:700 13.5px var(--f-body);fill:var(--ink)}
+.t-sub{font:400 11.8px var(--f-body);fill:var(--ink-2)}
+.t-eye{font:700 9.5px var(--f-body);letter-spacing:.1em;fill:var(--ink-3)}
+.t-edge{font:700 11.5px var(--f-body);fill:var(--ink-2)}
+.num-bg{fill:var(--ink)} .t-num{font:500 10.5px var(--f-data);fill:var(--surface)}
+.e{fill:none;stroke:var(--ink-2);stroke-width:1.5}
+.e-ret{stroke:var(--accent);stroke-dasharray:6 4}
+.ah{fill:var(--ink-2)}
+/* below */
+.grid{display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.grid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+td.n{font-family:var(--f-data);font-weight:500;color:var(--accent);white-space:nowrap}
+td.who{white-space:nowrap;color:var(--ink-2)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.tag.m{background:var(--lane-alt);color:var(--ink-2)}
+.note{font-size:13px;color:var(--ink-3)}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">SmartCast · MTI project</span>
+    <h1>From sensor reading to clinical intervention</h1>
+    <p class="lede">How a pressure problem under the cast is detected, acted on at home, and escalated to the treating clinic. It works whether or not the patient can report pain themselves.</p>
+  </header>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="sw"></i>Automatic, device or app</span>
+    <span><i class="sw p"></i>Done by a person</span>
+    <span><i class="sw d"></i>Decision</span>
+    <span><i class="sw a"></i>Alert</span>
+    <span><i class="sw e"></i>Emergency</span>
+  </div>
+
+  <figure>
+    <p class="hint">Swipe sideways to see all four lanes.</p>
+    <div class="scroll">
+<svg viewBox="0 0 1170 1690" role="img" aria-label="Swimlane flowchart of the SmartCast workflow: the sensing sock measures, the app converts, filters and checks alert rules, the caregiver follows guidance and logs pain, and if readings do not settle a report goes to the clinic, which gives advice, checks the cast or sends the patient to emergency care.">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs>
+<rect class="lane lane-alt" x="20" y="10" width="260" height="1670" rx="14"/>
+<text class="t-lane" x="150.0" y="40" text-anchor="middle">Sensing sock + ESP32</text>
+<text class="t-lanek" x="150.0" y="58" text-anchor="middle">DEVICE</text>
+<rect class="lane" x="290" y="10" width="280" height="1670" rx="14"/>
+<text class="t-lane" x="430.0" y="40" text-anchor="middle">SmartCast Monitor app</text>
+<text class="t-lanek" x="430.0" y="58" text-anchor="middle">AUTOMATIC</text>
+<rect class="lane lane-alt" x="580" y="10" width="280" height="1670" rx="14"/>
+<text class="t-lane" x="720.0" y="40" text-anchor="middle">Caregiver / patient</text>
+<text class="t-lanek" x="720.0" y="58" text-anchor="middle">PEOPLE</text>
+<rect class="lane" x="870" y="10" width="280" height="1670" rx="14"/>
+<text class="t-lane" x="1010.0" y="40" text-anchor="middle">Treating clinic</text>
+<text class="t-lanek" x="1010.0" y="58" text-anchor="middle">PEOPLE</text>
+<rect class="n-start" x="898.0" y="81.0" width="224" height="78.0" rx="22"/>
+<circle class="num-bg" cx="1106.0" cy="97.0" r="9"/><text class="t-num" x="1106.0" y="100.5" text-anchor="middle">1</text>
+<text class="t-title" x="912.0" y="103.0">Cast applied</text>
+<text class="t-sub" x="912.0" y="120.0">Sensing sock under the cast,</text>
+<text class="t-sub" x="912.0" y="135.0">app paired with the sock</text>
+<rect class="n-auto" x="38.0" y="73.5" width="224" height="93.0" rx="10"/>
+<circle class="num-bg" cx="246.0" cy="89.5" r="9"/><text class="t-num" x="246.0" y="93.0" text-anchor="middle">2</text>
+<text class="t-title" x="52.0" y="95.5">Sensors measure</text>
+<text class="t-sub" x="52.0" y="112.5">7× pressure (FSR), 7× skin</text>
+<text class="t-sub" x="52.0" y="127.5">temperature, humidity at the</text>
+<text class="t-sub" x="52.0" y="142.5">Achilles, IMU</text>
+<rect class="n-auto" x="38.0" y="211.0" width="224" height="78.0" rx="10"/>
+<circle class="num-bg" cx="246.0" cy="227.0" r="9"/><text class="t-num" x="246.0" y="230.5" text-anchor="middle">3</text>
+<text class="t-title" x="52.0" y="233.0">ESP32 samples</text>
+<text class="t-sub" x="52.0" y="250.0">About once per second: raw ADC</text>
+<text class="t-sub" x="52.0" y="265.0">0–4095, °C, % RH, g</text>
+<rect class="n-auto" x="318.0" y="211.0" width="224" height="78.0" rx="10"/>
+<circle class="num-bg" cx="526.0" cy="227.0" r="9"/><text class="t-num" x="526.0" y="230.5" text-anchor="middle">4</text>
+<text class="t-title" x="332.0" y="233.0">Convert to mmHg</text>
+<text class="t-sub" x="332.0" y="250.0">Calibration table plus per-</text>
+<text class="t-sub" x="332.0" y="265.0">sensor zero offset</text>
+<rect class="n-auto" x="318.0" y="325.5" width="224" height="93.0" rx="10"/>
+<circle class="num-bg" cx="526.0" cy="341.5" r="9"/><text class="t-num" x="526.0" y="345.0" text-anchor="middle">5</text>
+<text class="t-title" x="332.0" y="347.5">Filter artefacts</text>
+<text class="t-sub" x="332.0" y="364.5">Skip pressure while the leg</text>
+<text class="t-sub" x="332.0" y="379.5">moves (IMU &gt; 0.15 g) and spikes</text>
+<text class="t-sub" x="332.0" y="394.5">shorter than 10 s</text>
+<rect class="n-auto" x="318.0" y="461.0" width="224" height="78.0" rx="10"/>
+<circle class="num-bg" cx="526.0" cy="477.0" r="9"/><text class="t-num" x="526.0" y="480.5" text-anchor="middle">6</text>
+<text class="t-title" x="332.0" y="483.0">Update heatmap + history</text>
+<text class="t-sub" x="332.0" y="500.0">3D foot, timeline, per-sensor</text>
+<text class="t-sub" x="332.0" y="515.0">statistics, caregiver notes</text>
+<polygon class="n-dec" points="430.0,588.0 535.0,640 430.0,692.0 325.0,640"/>
+<text class="t-title" x="430.0" y="612.0" text-anchor="middle">Alert rule met?</text>
+<text class="t-sub" x="430.0" y="628.0" text-anchor="middle">pressure,</text>
+<text class="t-sub" x="430.0" y="644.0" text-anchor="middle">temperature,</text>
+<text class="t-sub" x="430.0" y="660.0" text-anchor="middle">humidity, swelling</text>
+<text class="t-sub" x="430.0" y="676.0" text-anchor="middle">or data loss</text>
+<circle class="num-bg" cx="509.0" cy="610" r="9"/><text class="t-num" x="509.0" y="613.5" text-anchor="middle">7</text>
+<rect class="n-alert" x="318.0" y="743.5" width="224" height="93.0" rx="10"/>
+<circle class="num-bg" cx="526.0" cy="759.5" r="9"/><text class="t-num" x="526.0" y="763.0" text-anchor="middle">8</text>
+<text class="t-title" x="332.0" y="765.5">Alert on the phone</text>
+<text class="t-sub" x="332.0" y="782.5">Warning after 10 min above 40</text>
+<text class="t-sub" x="332.0" y="797.5">mmHg, critical after 30 min,</text>
+<text class="t-sub" x="332.0" y="812.5">with what-to-do steps</text>
+<rect class="n-start" x="608.0" y="446.5" width="224" height="107.0" rx="22"/>
+<text class="t-eye" x="622.0" y="468.5">ANY TIME</text>
+<circle class="num-bg" cx="816.0" cy="462.5" r="9"/><text class="t-num" x="816.0" y="466.0" text-anchor="middle">A</text>
+<text class="t-title" x="622.0" y="483.5">Pain or distress noticed</text>
+<text class="t-sub" x="622.0" y="500.5">The patient says it hurts, or</text>
+<text class="t-sub" x="622.0" y="515.5">the caregiver sees crying or</text>
+<text class="t-sub" x="622.0" y="530.5">restlessness</text>
+<rect class="n-person" x="608.0" y="593.5" width="224" height="93.0" rx="10"/>
+<circle class="num-bg" cx="816.0" cy="609.5" r="9"/><text class="t-num" x="816.0" y="613.0" text-anchor="middle">B</text>
+<text class="t-title" x="622.0" y="615.5">Log it in the app</text>
+<text class="t-sub" x="622.0" y="632.5">Quick tag such as “Pain</text>
+<text class="t-sub" x="622.0" y="647.5">reported” or “Crying”. Shows on</text>
+<text class="t-sub" x="622.0" y="662.5">the timeline and in the report</text>
+<rect class="n-person" x="608.0" y="743.5" width="224" height="93.0" rx="10"/>
+<circle class="num-bg" cx="816.0" cy="759.5" r="9"/><text class="t-num" x="816.0" y="763.0" text-anchor="middle">9</text>
+<text class="t-title" x="622.0" y="765.5">Follow the guidance</text>
+<text class="t-sub" x="622.0" y="782.5">Reposition, float the heel,</text>
+<text class="t-sub" x="622.0" y="797.5">elevate the leg, then log what</text>
+<text class="t-sub" x="622.0" y="812.5">was done</text>
+<polygon class="n-dec" points="430.0,893.0 535.0,945 430.0,997.0 325.0,945"/>
+<text class="t-title" x="430.0" y="933.0" text-anchor="middle">Back to normal?</text>
+<text class="t-sub" x="430.0" y="949.0" text-anchor="middle">within about 30 min,</text>
+<text class="t-sub" x="430.0" y="965.0" text-anchor="middle">and pain settled</text>
+<circle class="num-bg" cx="509.0" cy="915" r="9"/><text class="t-num" x="509.0" y="918.5" text-anchor="middle">10</text>
+<rect class="n-end" x="38.0" y="906.0" width="224" height="78.0" rx="10"/>
+<text class="t-title" x="52.0" y="928.0">Keep monitoring</text>
+<text class="t-sub" x="52.0" y="945.0">Episode stays in the log as</text>
+<text class="t-sub" x="52.0" y="960.0">resolved</text>
+<rect class="n-auto" x="318.0" y="1053.5" width="224" height="93.0" rx="10"/>
+<circle class="num-bg" cx="526.0" cy="1069.5" r="9"/><text class="t-num" x="526.0" y="1073.0" text-anchor="middle">11</text>
+<text class="t-title" x="332.0" y="1075.5">Create doctor report</text>
+<text class="t-sub" x="332.0" y="1092.5">PDF with heatmap at the peak,</text>
+<text class="t-sub" x="332.0" y="1107.5">time above limit, alerts and</text>
+<text class="t-sub" x="332.0" y="1122.5">notes, plus CSV raw data</text>
+<rect class="n-person" x="608.0" y="1061.0" width="224" height="78.0" rx="10"/>
+<circle class="num-bg" cx="816.0" cy="1077.0" r="9"/><text class="t-num" x="816.0" y="1080.5" text-anchor="middle">12</text>
+<text class="t-title" x="622.0" y="1083.0">Send to the clinic</text>
+<text class="t-sub" x="622.0" y="1100.0">Email the PDF and CSV, or phone</text>
+<text class="t-sub" x="622.0" y="1115.0">the clinic and send it after</text>
+<rect class="n-person" x="898.0" y="1053.5" width="224" height="93.0" rx="10"/>
+<circle class="num-bg" cx="1106.0" cy="1069.5" r="9"/><text class="t-num" x="1106.0" y="1073.0" text-anchor="middle">13</text>
+<text class="t-title" x="912.0" y="1075.5">Doctor reviews</text>
+<text class="t-sub" x="912.0" y="1092.5">Where the hotspot is, how long</text>
+<text class="t-sub" x="912.0" y="1107.5">it lasted, temperature trend,</text>
+<text class="t-sub" x="912.0" y="1122.5">caregiver notes</text>
+<polygon class="n-dec" points="1010.0,1208.0 1100.0,1250 1010.0,1292.0 920.0,1250"/>
+<text class="t-title" x="1010.0" y="1254.0" text-anchor="middle">Assessment</text>
+<circle class="num-bg" cx="1074.0" cy="1220" r="9"/><text class="t-num" x="1074.0" y="1223.5" text-anchor="middle">14</text>
+<rect class="n-person" x="912" y="1331.5" width="232" height="107.0" rx="10"/>
+<text class="t-eye" x="926" y="1353.5">MILD OR IMPROVING</text>
+<text class="t-title" x="926" y="1368.5">Advice by phone</text>
+<text class="t-sub" x="926" y="1385.5">Elevate, pain relief, keep</text>
+<text class="t-sub" x="926" y="1400.5">watching the app. Back to step</text>
+<text class="t-sub" x="926" y="1415.5">2</text>
+<rect class="n-person" x="912" y="1436.5" width="232" height="107.0" rx="10"/>
+<text class="t-eye" x="926" y="1458.5">LIKELY PRESSURE PROBLEM</text>
+<text class="t-title" x="926" y="1473.5">Cast check in clinic</text>
+<text class="t-sub" x="926" y="1490.5">Inspect the skin; window,</text>
+<text class="t-sub" x="926" y="1505.5">split, re-pad or replace the</text>
+<text class="t-sub" x="926" y="1520.5">cast. Back to step 1</text>
+<rect class="n-emerg" x="912" y="1549.0" width="232" height="92.0" rx="10"/>
+<text class="t-eye" x="926" y="1571.0">URGENT</text>
+<text class="t-title" x="926" y="1586.0">Emergency care</text>
+<text class="t-sub" x="926" y="1603.0">Severe or rising pain,</text>
+<text class="t-sub" x="926" y="1618.0">suspected compartment syndrome</text>
+<rect class="n-start" x="608.0" y="1541.5" width="224" height="107.0" rx="22"/>
+<text class="t-eye" x="622.0" y="1563.5">ANY TIME</text>
+<text class="t-title" x="622.0" y="1578.5">Emergency signs</text>
+<text class="t-sub" x="622.0" y="1595.5">Severe pain that does not</text>
+<text class="t-sub" x="622.0" y="1610.5">settle, or the wearer is very</text>
+<text class="t-sub" x="622.0" y="1625.5">unwell</text>
+<path class="e" d="M898.0,120.0 L264.0,120.0" marker-end="url(#ah)"/>
+<text class="t-edge" x="575.0" y="112.0" text-anchor="middle">monitoring starts</text>
+<path class="e" d="M150.0,166.5 L150.0,209.0" marker-end="url(#ah)"/>
+<path class="e" d="M262.0,250.0 L316.0,250.0" marker-end="url(#ah)"/>
+<text class="t-edge" x="290.0" y="242.0" text-anchor="middle">BLE</text>
+<path class="e" d="M430.0,289.0 L430.0,323.5" marker-end="url(#ah)"/>
+<path class="e" d="M430.0,418.5 L430.0,459.0" marker-end="url(#ah)"/>
+<path class="e" d="M430.0,539.0 L430.0,586.0" marker-end="url(#ah)"/>
+<path class="e" d="M325.0,640.0 L36.0,640.0" />
+<text class="t-edge" x="300.0" y="632.0" text-anchor="middle">No</text>
+<path class="e" d="M430.0,692.0 L430.0,741.5" marker-end="url(#ah)"/>
+<text class="t-edge" x="440.0" y="708.0" text-anchor="start">Yes</text>
+<path class="e" d="M542.0,790.0 L606.0,790.0" marker-end="url(#ah)"/>
+<text class="t-edge" x="575.0" y="782.0" text-anchor="middle">notify</text>
+<path class="e" d="M720.0,553.5 L720.0,591.5" marker-end="url(#ah)"/>
+<path class="e" d="M720.0,686.5 L720.0,741.5" marker-end="url(#ah)"/>
+<path class="e" d="M720.0,836.5 L720.0,945.0 L537.0,945.0" marker-end="url(#ah)"/>
+<text class="t-edge" x="712.0" y="876.5" text-anchor="end">app keeps watching</text>
+<path class="e" d="M325.0,945.0 L264.0,945.0" marker-end="url(#ah)"/>
+<text class="t-edge" x="300.0" y="937.0" text-anchor="middle">Yes</text>
+<path class="e e-ret" d="M38.0,945.0 L36.0,945.0 L36.0,120.0 L36.0,120.0" marker-end="url(#ah)"/>
+<text class="t-edge" x="30" y="560" text-anchor="middle" transform="rotate(-90 30 560)">back to monitoring</text>
+<path class="e" d="M430.0,997.0 L430.0,1051.5" marker-end="url(#ah)"/>
+<text class="t-edge" x="440.0" y="1015.0" text-anchor="start">No, critical, or pain persists</text>
+<path class="e" d="M542.0,1100.0 L606.0,1100.0" marker-end="url(#ah)"/>
+<path class="e" d="M832.0,1100.0 L896.0,1100.0" marker-end="url(#ah)"/>
+<path class="e" d="M1010.0,1146.5 L1010.0,1206.0" marker-end="url(#ah)"/>
+<path class="e" d="M1010.0,1292.0 L1010.0,1312.0 L893.0,1312.0 L893.0,1595.0" />
+<path class="e" d="M893.0,1385.0 L910.0,1385.0" marker-end="url(#ah)"/>
+<path class="e" d="M893.0,1490.0 L910.0,1490.0" marker-end="url(#ah)"/>
+<path class="e" d="M893.0,1595.0 L910.0,1595.0" marker-end="url(#ah)"/>
+<path class="e" d="M832.0,1595.0 L910.0,1595.0" marker-end="url(#ah)"/>
+<text class="t-edge" x="888.0" y="1587.0" text-anchor="end">call 144</text>
+</svg>
+    </div>
+    <figcaption>Sensor data runs down the app lane automatically. People only step in when an alert fires or when pain is noticed. Escalation to the clinic happens when readings do not settle within about 30 minutes, an alert turns critical, or pain persists.</figcaption>
+  </figure>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Step by step</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>#</th><th>Step</th><th>Who</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1–3</td><td>The clinic applies the cast over the sensing sock. The ESP32 reads 7 pressure and 7 temperature points, humidity and movement about once per second and sends them over Bluetooth.</td><td class="who"><span class="tag">Automatic</span></td></tr>
+          <tr><td class="n">4–6</td><td>The app converts raw ADC counts to mmHg, drops readings taken during movement and short spikes, and updates the 3D heatmap and history.</td><td class="who"><span class="tag">Automatic</span></td></tr>
+          <tr><td class="n">7–8</td><td>If a rule is met, the phone shows a warning or critical alert with concrete steps.</td><td class="who"><span class="tag">Automatic</span></td></tr>
+          <tr><td class="n">A–B</td><td>Pain or distress can be logged at any time with one tap. For patients who cannot speak, crying and restlessness are what the caregiver logs.</td><td class="who"><span class="tag m">Caregiver</span></td></tr>
+          <tr><td class="n">9–10</td><td>The caregiver repositions and elevates the leg. The app checks whether pressure drops and the episode resolves.</td><td class="who"><span class="tag m">Caregiver</span> <span class="tag">App</span></td></tr>
+          <tr><td class="n">11–12</td><td>If not, the app builds a PDF and CSV report, which the caregiver emails to the clinic or brings up on the phone call.</td><td class="who"><span class="tag">App</span> <span class="tag m">Caregiver</span></td></tr>
+          <tr><td class="n">13–14</td><td>The doctor sees where the hotspot is, how long it lasted and what the caregiver noticed, and decides: advice, cast check (window, split, re-pad, replace) or emergency care.</td><td class="who"><span class="tag m">Doctor</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <h2>Alert rules at step 7</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Signal</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td>Pressure</td><td>Above 40 mmHg for 10 min gives a warning, for 30 min a critical alert</td></tr>
+          <tr><td>Skin temperature</td><td>Above 38 °C for 5 min, or one spot 2 °C warmer than the rest for 20 min</td></tr>
+          <tr><td>Humidity</td><td>Above 90 % RH for 30 min (cast may be wet)</td></tr>
+          <tr><td>Swelling</td><td>Average pressure 8 mmHg higher than 6 h earlier</td></tr>
+          <tr><td>Data loss</td><td>No readings from a sensor for 2 min</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">All limits are design assumptions for the prototype and can be changed in the app. They still need clinical validation.</p>
+      <p class="note">In the prototype, sending the report is a manual step (email or phone). A direct link to the clinic would be a later version.</p>
+    </section>
+  </div>
+</div>
+
+</body></html>
